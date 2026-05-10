@@ -26,7 +26,7 @@ import { en } from '@/locales/en'
 import { fr } from '@/locales/fr'
 
 const NAV_ITEMS: { href: string; navKey: keyof typeof en.nav; Icon: LucideIcon }[] = [
-  { href: '/admin/dashboard', navKey: 'dashboard',    Icon: LayoutDashboard },
+  { href: '/dashboard',        navKey: 'dashboard',    Icon: LayoutDashboard },
   { href: '/machines',        navKey: 'machines',     Icon: Bot },
   { href: '/products',        navKey: 'products',     Icon: Package },
   { href: '/siret-mapping',   navKey: 'siretMapping', Icon: ShieldCheck },
