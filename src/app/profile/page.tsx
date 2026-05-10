@@ -1,13 +1,14 @@
 // FILE: D:\smartvendkiosk\src\app\profile\page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 import { KeyRound, X } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
+import { changePassword } from './actions'
 
 type Lang = 'FR' | 'EN'
 
@@ -16,18 +17,42 @@ export default function ProfilePage() {
 
   const [lang, setLang] = useState<Lang>('FR')
   const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
   const [toast, setToast] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => { if (d.user?.email) setUserEmail(d.user.email) })
+      .catch(() => {})
+  }, [])
 
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(''), 4000)
   }
 
-  function handleSavePassword() {
-    setOldPassword('')
+  async function handleSavePassword() {
+    setPasswordError('')
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters')
+      return
+    }
+    setIsSaving(true)
+    const result = await changePassword(newPassword)
+    setIsSaving(false)
+    if (result.error) {
+      setPasswordError(result.error)
+      return
+    }
     setNewPassword('')
     setConfirmPassword('')
     setShowPasswordModal(false)
@@ -56,7 +81,7 @@ export default function ProfilePage() {
           <div className="w-full divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
             <div className="flex items-center justify-between px-4 py-2.5 text-sm">
               <span className="text-[var(--text-muted)]">Email</span>
-              <span className="font-medium text-[var(--text-primary)]">admin@lda.fr</span>
+              <span className="font-medium text-[var(--text-primary)]">{userEmail || '—'}</span>
             </div>
             <div className="flex items-center justify-between px-4 py-2.5 text-sm">
               <span className="text-[var(--text-muted)]">SIRET</span>
@@ -127,16 +152,6 @@ export default function ProfilePage() {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--text-muted)]">{t.oldPassword}</label>
-                <input
-                  type="password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="h-9 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text-muted)]">{t.newPassword}</label>
                 <input
                   type="password"
@@ -156,11 +171,14 @@ export default function ProfilePage() {
                   className="h-9 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              {passwordError && (
+                <p className="text-xs text-red-500">{passwordError}</p>
+              )}
             </div>
 
             <div className="mt-5 flex gap-2">
-              <Button variant="primary" className="flex-1" onClick={handleSavePassword}>
-                {t.save}
+              <Button variant="primary" className="flex-1" onClick={handleSavePassword} disabled={isSaving}>
+                {isSaving ? 'Saving…' : t.save}
               </Button>
               <Button
                 variant="secondary"
