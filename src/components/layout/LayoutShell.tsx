@@ -7,7 +7,12 @@ import { MainContent } from './MainContent'
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isPublic = pathname === '/' || pathname.startsWith('/login')
+  const isPublic =
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/landing') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/signup')
 
   if (isPublic) return <>{children}</>
 

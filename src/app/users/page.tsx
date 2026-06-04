@@ -104,7 +104,7 @@ export default function UsersPage() {
 
   function formatLastActive(dateStr: string | null) {
     if (!dateStr) return t.never
-    return new Date(dateStr).toLocaleString('fr-FR', {
+    return new Date(dateStr).toLocaleString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

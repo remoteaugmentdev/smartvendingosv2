@@ -2,6 +2,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -90,9 +91,14 @@ export default function RoutesPage() {
                   <Badge variant="default">{route.machines.length} machine{route.machines.length !== 1 ? 's' : ''}</Badge>
                 </div>
                 {!isEditing && (
-                  <Button variant="secondary" size="sm" onClick={() => startEdit(route)}>
-                    {t.edit}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Link href={`/routes/${route.id}`}>
+                      <Button variant="secondary" size="sm">Open</Button>
+                    </Link>
+                    <Button variant="secondary" size="sm" onClick={() => startEdit(route)}>
+                      {t.edit}
+                    </Button>
+                  </div>
                 )}
               </CardHeader>
 

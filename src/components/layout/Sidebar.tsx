@@ -5,15 +5,22 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Bot,
+  Building2,
   Package,
-  ShieldCheck,
   Archive,
   ShoppingCart,
+  Truck,
+  ShoppingBag,
+  Receipt,
   BarChart3,
+  Sparkles,
+  Gift,
   Bell,
   Users,
-  FileText,
+  UsersRound,
+  Map,
   MapPin,
+  Settings2,
   UserCircle,
   ChevronLeft,
   ChevronRight,
@@ -23,27 +30,33 @@ import { useApp } from '@/context/AppContext'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/utils/cn'
 import { en } from '@/locales/en'
-import { fr } from '@/locales/fr'
 
 const NAV_ITEMS: { href: string; navKey: keyof typeof en.nav; Icon: LucideIcon }[] = [
   { href: '/dashboard',        navKey: 'dashboard',    Icon: LayoutDashboard },
+  { href: '/map',             navKey: 'map',          Icon: Map },
   { href: '/machines',        navKey: 'machines',     Icon: Bot },
+  { href: '/locations',       navKey: 'locations',    Icon: Building2 },
   { href: '/products',        navKey: 'products',     Icon: Package },
-  { href: '/siret-mapping',   navKey: 'siretMapping', Icon: ShieldCheck },
   { href: '/inventory',       navKey: 'inventory',    Icon: Archive },
-  { href: '/orders',          navKey: 'orders',       Icon: ShoppingCart },
-  { href: '/data-center',     navKey: 'dataCenter',   Icon: BarChart3 },
-  { href: '/alerts',          navKey: 'alerts',       Icon: Bell },
-  { href: '/users',           navKey: 'users',        Icon: Users },
-  { href: '/reports',         navKey: 'reports',      Icon: FileText },
   { href: '/routes',          navKey: 'routes',       Icon: MapPin },
+  { href: '/trips',           navKey: 'trips',        Icon: Truck },
+  { href: '/purchases',       navKey: 'purchases',    Icon: ShoppingBag },
+  { href: '/orders',          navKey: 'orders',       Icon: ShoppingCart },
+  { href: '/expenses',        navKey: 'expenses',     Icon: Receipt },
+  { href: '/data-center',     navKey: 'dataCenter',   Icon: BarChart3 },
+  { href: '/insights',        navKey: 'insights',     Icon: Sparkles },
+  { href: '/promotions',      navKey: 'promotions',   Icon: Gift },
+  { href: '/alerts',          navKey: 'alerts',       Icon: Bell },
+  { href: '/team',            navKey: 'team',         Icon: UsersRound },
+  { href: '/users',           navKey: 'users',        Icon: Users },
+  { href: '/configuration',   navKey: 'configuration', Icon: Settings2 },
   { href: '/profile',         navKey: 'profile',      Icon: UserCircle },
 ]
 
 export function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, closeMobileSidebar, lang } = useApp()
+  const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, closeMobileSidebar } = useApp()
   const pathname = usePathname()
-  const t = lang === 'fr' ? fr : en
+  const t = en
 
   const navItems = (
     <nav className="flex flex-1 min-h-0 flex-col gap-0.5 overflow-y-auto py-3 px-2">

@@ -43,7 +43,7 @@ function ProductRanking() {
               <div className="flex items-center justify-between gap-2">
                 <span className="truncate text-sm font-medium text-[var(--text-primary)]">{p.name}</span>
                 <div className="flex shrink-0 items-center gap-4 text-xs text-[var(--text-muted)]">
-                  <span className="font-semibold text-[var(--text-primary)]">€{p.totalRevenue.toFixed(2)}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">${p.totalRevenue.toFixed(2)}</span>
                   <span>{p.totalSales} sold</span>
                 </div>
               </div>
@@ -89,7 +89,7 @@ function MachineRanking({ t }: { t: ReturnType<typeof useTranslation> }) {
               </Td>
               <Td className="font-medium">{m.name}</Td>
               <Td className="hidden sm:table-cell text-[var(--text-muted)]">{m.location}</Td>
-              <Td className="font-semibold">€{m.totalSales.toLocaleString()}</Td>
+              <Td className="font-semibold">${m.totalSales.toLocaleString()}</Td>
               <Td className="hidden md:table-cell">{m.revenueMonthly.filter((v) => v > 0).length * 18}</Td>
             </Tr>
           ))}
@@ -130,7 +130,7 @@ function MachineProductRanking({ t }: { t: ReturnType<typeof useTranslation> }) 
             <Td className="hidden sm:table-cell text-xs text-[var(--text-muted)]">{machine?.name ?? slot.machineId}</Td>
             <Td className="font-medium">{product?.name ?? slot.product}</Td>
             <Td className="hidden sm:table-cell">{qtySold}</Td>
-            <Td>€{revenue.toFixed(2)}</Td>
+            <Td>${revenue.toFixed(2)}</Td>
             <Td className="hidden md:table-cell">
               <div className="flex items-center gap-2">
                 <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
@@ -320,9 +320,9 @@ export default function DataCenterPage() {
             <CardHeader>
               <CardTitle>{t.statisticalResult}</CardTitle>
             </CardHeader>
-            <div className="mb-1 text-3xl font-bold text-[var(--text-primary)]">1,240.50 €</div>
+            <div className="mb-1 text-3xl font-bold text-[var(--text-primary)]">$1,240.50</div>
             <div className="text-xs text-[var(--text-muted)]">
-              1,240.50 = 1,305.00 − 64.50
+              $1,240.50 = $1,305.00 − $64.50
             </div>
           </Card>
 
@@ -344,7 +344,7 @@ export default function DataCenterPage() {
                 <Tr>
                   <Td className="font-medium">Card (NFC/Chip)</Td>
                   <Td>42</Td>
-                  <Td>892.00 €</Td>
+                  <Td>$892.00</Td>
                   <Td>
                     <Badge variant="info">72%</Badge>
                   </Td>
@@ -352,7 +352,7 @@ export default function DataCenterPage() {
                 <Tr>
                   <Td className="font-medium">QR Code</Td>
                   <Td>18</Td>
-                  <Td>280.50 €</Td>
+                  <Td>$280.50</Td>
                   <Td>
                     <Badge variant="default">23%</Badge>
                   </Td>
@@ -360,7 +360,7 @@ export default function DataCenterPage() {
                 <Tr>
                   <Td className="font-medium">Cash</Td>
                   <Td>4</Td>
-                  <Td>68.00 €</Td>
+                  <Td>$68.00</Td>
                   <Td>
                     <Badge variant="default">5%</Badge>
                   </Td>

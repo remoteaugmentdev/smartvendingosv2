@@ -18,7 +18,6 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
-import { useApp } from '@/context/AppContext'
 
 type MainTab = 'feed' | 'settings'
 type FilterType = 'all' | AlertType
@@ -40,7 +39,7 @@ function alertIcon(type: AlertType) {
 
 function formatAlertDate(dateStr: string) {
   const d = new Date(dateStr)
-  return d.toLocaleString('fr-FR', {
+  return d.toLocaleString('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -83,7 +82,6 @@ function Toggle({
 
 export default function AlertsPage() {
   const t = useTranslation()
-  const { lang } = useApp()
 
   const [activeTab, setActiveTab] = useState<MainTab>('feed')
   const [activeFilter, setActiveFilter] = useState<FilterType>('all')
@@ -208,7 +206,7 @@ export default function AlertsPage() {
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           <Badge variant={status === 'active' ? 'danger' : 'success'}>
-                            {status === 'active' ? t.active : (lang === 'fr' ? 'Résolu' : 'Resolved')}
+                            {status === 'active' ? t.active : 'Resolved'}
                           </Badge>
                           {status === 'active' && (
                             <Button

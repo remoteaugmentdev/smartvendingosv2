@@ -15,6 +15,7 @@ import {
   ldaProducts,
   ldaOrders,
   ldaWeeklyRevenue,
+  ldaMonthlySales,
 } from '@/data/lda'
 import { useTranslation } from '@/hooks/useTranslation'
 
@@ -29,31 +30,39 @@ const topProducts = [...ldaProducts]
   .sort((a, b) => b.totalRevenue - a.totalRevenue)
   .slice(0, 7)
 
+const monthly = ldaMonthlySales[ldaMonthlySales.length - 1]
+const grossRevenue = monthly.sales
+const netIncome = monthly.sales - monthly.commission - monthly.cogs - monthly.refunds
+const weeklyTotal = ldaWeeklyRevenue.reduce((s, d) => s + d.revenue, 0)
+const onlineCount = ldaMachines.filter((m) => m.status !== 'offline').length
+const offlineCount = ldaMachines.filter((m) => m.status === 'offline').length
+const pendingRestocks = ldaMachines.filter((m) => m.shortageRate > m.shortageThreshold).length
+
 const plBarData = [
-  { label: 'Gross', value: 1240.5 },
-  { label: 'Commission', value: 124 },
-  { label: 'Refunds', value: 25 },
-  { label: 'Net', value: 1091.5 },
+  { label: 'Gross', value: monthly.sales },
+  { label: 'COGS', value: monthly.cogs },
+  { label: 'Commission', value: monthly.commission },
+  { label: 'Net', value: netIncome },
 ]
 
 const donutData = [
-  { name: 'Commission', value: 124, color: '#64748B' },
-  { name: 'Refunds', value: 25, color: '#EF4444' },
-  { name: 'COGS', value: 620, color: '#2563EB' },
-  { name: 'Net', value: 471, color: '#10B981' },
+  { name: 'COGS', value: monthly.cogs, color: '#2563EB' },
+  { name: 'Commission', value: monthly.commission, color: '#64748B' },
+  { name: 'Refunds', value: monthly.refunds, color: '#EF4444' },
+  { name: 'Net', value: netIncome, color: '#10B981' },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+  return new Date(iso).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })
 }
 
 function fmtEur(n: number) {
-  return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -134,55 +143,55 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
 
         {/* 1 – Gross Revenue */}
-        <Link href="/reports" className="block">
+        <Link href="/data-center" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-blue-500">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.grossRevenue}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">1 240,50 €</p>
-            <Badge variant="success" className="mt-2">+12.5%</Badge>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Gross Revenue (MTD)</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{fmtEur(grossRevenue)}</p>
+            <Badge variant="success" className="mt-2">+21.2%</Badge>
           </div>
         </Link>
 
         {/* 2 – Active Machines */}
         <Link href="/machines" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-emerald-500">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.activeMachines}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">2 / 3 online</p>
-            <Badge variant="warning" className="mt-2">{t.offlineWarning}</Badge>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Active Machines</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{onlineCount} / {ldaMachines.length} online</p>
+            <Badge variant="warning" className="mt-2">{offlineCount} offline</Badge>
           </div>
         </Link>
 
         {/* 3 – Products Mapped */}
-        <Link href="/products" className="block">
+        <Link href="/data-center" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-blue-400">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.productsMapped}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">24 / 30</p>
-            <Badge variant="info" className="mt-2">80%</Badge>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Net Income (MTD)</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{fmtEur(netIncome)}</p>
+            <Badge variant="success" className="mt-2">+18.5%</Badge>
           </div>
         </Link>
 
         {/* 4 – Pending SIRETs */}
-        <Link href="/siret-mapping" className="block">
+        <Link href="/inventory" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-amber-400">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.pendingSirets}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">6</p>
-            <Badge variant="warning" className="mt-2">{t.toProcess}</Badge>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Pending Restocks</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{pendingRestocks} machines</p>
+            <Badge variant="warning" className="mt-2">Below threshold</Badge>
           </div>
         </Link>
 
         {/* 5 – Active Producers */}
-        <Link href="/siret-mapping" className="block">
+        <Link href="/trips" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-emerald-400">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.activeProducers}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">8</p>
-            <Badge variant="success" className="mt-2">{t.complete}</Badge>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Total Trips (MTD)</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">38</p>
+            <Badge variant="info" className="mt-2">6 this week</Badge>
           </div>
         </Link>
 
         {/* 6 – Low Stock Alerts */}
         <Link href="/inventory" className="block">
           <div className="rounded-xl bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-t-2 border-red-500">
-            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">{t.lowStockAlerts}</p>
-            <p className="text-xl font-bold text-[var(--text-primary)]">4 slots</p>
+            <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Low Stock Alerts</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{lowStockProducts.length} products</p>
             <Badge variant="danger" className="mt-2">{t.actionNeeded}</Badge>
           </div>
         </Link>
@@ -201,17 +210,17 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <div className="mb-3">
-            <p className="text-3xl font-bold text-emerald-600">1 091,50 €</p>
+            <p className="text-3xl font-bold text-emerald-600">{fmtEur(netIncome)}</p>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{t.netRevenue}</p>
           </div>
           <BarChartWrapper
             data={plBarData}
-            bars={[{ key: 'value', label: 'Amount (€)', color: '#2563EB' }]}
+            bars={[{ key: 'value', label: 'Amount ($)', color: '#2563EB' }]}
             xKey="label"
             height={160}
           />
           <p className="mt-3 text-xs text-[var(--text-muted)]">
-            Net = Gross (1 240,50 €) − Commission (124 €) − Refunds (25 €)
+            Net = Gross ({fmtEur(grossRevenue)}) − COGS ({fmtEur(monthly.cogs)}) − Commission ({fmtEur(monthly.commission)})
           </p>
         </Card>
 
@@ -221,7 +230,7 @@ export default function DashboardPage() {
             <CardTitle>{t.weeklyRevenue}</CardTitle>
           </CardHeader>
           <div className="mb-3 flex items-center gap-3">
-            <p className="text-3xl font-bold text-[var(--text-primary)]">1 240,50 €</p>
+            <p className="text-3xl font-bold text-[var(--text-primary)]">{fmtEur(weeklyTotal)}</p>
             <Badge variant="success">+12.5%</Badge>
           </div>
           <AreaChartWrapper
@@ -336,7 +345,7 @@ export default function DashboardPage() {
                     : 'text-[var(--text-muted)] hover:bg-slate-100'
                 )}
               >
-                Sales €
+                Sales $
               </button>
               <button
                 onClick={() => setProductSort('qty')}
@@ -495,7 +504,7 @@ export default function DashboardPage() {
                   </Td>
                   <Td className="font-medium whitespace-nowrap">{fmtEur(m.revenueToday)}</Td>
                   <Td className="hidden lg:table-cell text-xs text-[var(--text-muted)] whitespace-nowrap">
-                    {new Date(m.expiryDate).toLocaleDateString('fr-FR')}
+                    {new Date(m.expiryDate).toLocaleDateString('en-US')}
                   </Td>
                 </Tr>
               ))

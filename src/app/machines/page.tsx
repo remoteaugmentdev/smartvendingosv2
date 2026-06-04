@@ -121,10 +121,10 @@ export default function MachinesPage() {
                     <span className="text-[var(--text-muted)]">{t.incomeToday}: </span>
                     {income > 0 ? (
                       <span className="font-semibold text-[var(--text-primary)]">
-                        €{income.toFixed(2)}
+                        ${income.toFixed(2)}
                       </span>
                     ) : (
-                      <span className="text-[var(--text-muted)]">€0.00</span>
+                      <span className="text-[var(--text-muted)]">$0.00</span>
                     )}
                   </p>
                 </div>

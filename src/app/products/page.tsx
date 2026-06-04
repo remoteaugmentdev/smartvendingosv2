@@ -2,14 +2,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Search, Check, X, Trash2 } from 'lucide-react'
+import { Pencil, Search, X, Trash2 } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Table, Thead, Tbody, Tr, Th, Td } from '@/components/ui/Table'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/utils/cn'
-import { ldaProducts, ldaProductCategories, ldaProducers } from '@/data/lda'
+import { ldaProducts, ldaProductCategories } from '@/data/lda'
 import { useTranslation } from '@/hooks/useTranslation'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -23,11 +23,14 @@ function categoryColor(cat: string) {
   }
 }
 
-type Product = (typeof ldaProducts)[number]
+type Product = Omit<(typeof ldaProducts)[number], 'siret' | 'producer'> & {
+  siret: string | null
+  producer: string | null
+}
 type Category = (typeof ldaProductCategories)[number]
 
-const EMPTY_PRODUCT: Omit<Product, 'id' | 'totalSales' | 'totalRevenue'> & {
-  id: string; totalSales: number; totalRevenue: number
+const EMPTY_PRODUCT: Omit<Product, 'id' | 'totalSales' | 'totalRevenue' | 'eslLastPushed'> & {
+  id: string; totalSales: number; totalRevenue: number; siret: string | null; producer: string | null; eslLastPushed: string | null
 } = {
   id: '', name: '', category: 'Beverages', price: 0, barcode: '',
   siret: '', producer: '', status: 'active',
@@ -49,10 +52,6 @@ export default function ProductsPage() {
   const [formCategory, setFormCategory]   = useState('Beverages')
   const [formPrice, setFormPrice]         = useState('')
   const [formBarcode, setFormBarcode]     = useState('')
-  const [siretInput, setSiretInput]       = useState('')
-  const [producerName, setProducerName]   = useState('')
-  const [siretValid, setSiretValid]       = useState<boolean | null>(null)
-  const [eslEnabled, setEslEnabled]       = useState(false)
   const [activeToggle, setActiveToggle]   = useState(true)
   const [toast, setToast]                 = useState('')
 
@@ -64,8 +63,7 @@ export default function ProductsPage() {
   function openAdd() {
     setEditingProduct(null)
     setFormName(''); setFormCategory('Beverages'); setFormPrice(''); setFormBarcode('')
-    setSiretInput(''); setProducerName(''); setSiretValid(null)
-    setEslEnabled(false); setActiveToggle(true)
+    setActiveToggle(true)
     setShowModal(true)
   }
 
@@ -73,33 +71,12 @@ export default function ProductsPage() {
     setEditingProduct(p)
     setFormName(p.name); setFormCategory(p.category)
     setFormPrice(String(p.price)); setFormBarcode(p.barcode)
-    setSiretInput(p.siret ?? ''); setProducerName(p.producer ?? '')
-    setSiretValid(p.siret?.length === 14 ? true : null)
-    setEslEnabled(p.eslStatus !== 'never_pushed'); setActiveToggle(p.status === 'active')
+    setActiveToggle(p.status === 'active')
     setShowModal(true)
   }
 
-  function handleSiretChange(val: string) {
-    const digits = val.replace(/\D/g, '').slice(0, 14)
-    setSiretInput(digits)
-    if (digits.length === 14) {
-      const found = ldaProducers.find((pr) => pr.siret === digits)
-      if (found) { setProducerName(found.name); setSiretValid(true) }
-      else        { setSiretValid(true) } // valid length even if not in DB
-    } else {
-      setSiretValid(null)
-      setProducerName('')
-    }
-  }
-
   function handleSave() {
-    if (eslEnabled) {
-      const machineId = editingProduct?.machines?.[0] ?? '8825050300'
-      const aisleCode = editingProduct?.aisleCode ?? 'A-101'
-      showToast(`✓ ${t.eslUpdated} ${machineId}, Slot ${aisleCode}`)
-    } else {
-      showToast(`✓ Product ${editingProduct ? 'updated' : 'added'} successfully`)
-    }
+    showToast(`Product ${editingProduct ? 'updated' : 'added'} successfully`)
     setShowModal(false)
   }
 
@@ -121,8 +98,8 @@ export default function ProductsPage() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <PageHeader
-        title="Products"
-        description="Manage your product database and categories"
+        title="Product Catalog"
+        description="Manage your product catalog and categories"
       />
 
       {/* ── Tabs ──────────────────────────────────────────────────────────── */}
@@ -138,7 +115,7 @@ export default function ProductsPage() {
                 : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             )}
           >
-            {tab === 'database' ? t.productDatabase : t.productCategory}
+            {tab === 'database' ? 'Product Catalog' : 'Categories'}
           </button>
         ))}
       </div>
@@ -183,7 +160,7 @@ export default function ProductsPage() {
 
                 {/* Price */}
                 <span className="shrink-0 text-sm font-semibold text-[var(--text-primary)]">
-                  €{p.price.toFixed(2)}
+                  ${p.price.toFixed(2)}
                 </span>
 
                 {/* Stock */}
@@ -323,7 +300,7 @@ export default function ProductsPage() {
                 {/* Row 2: Price + Barcode */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">{t.price} (€)</label>
+                    <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">{t.price} ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -343,64 +320,29 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                {/* SIRET */}
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">{t.siretId} — {t.siretHelper}</label>
-                  <div className="relative">
+                {/* Row 3: Cost + Reorder Point */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Cost Price ($)</label>
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      value={siretInput}
-                      onChange={(e) => handleSiretChange(e.target.value)}
-                      maxLength={14}
-                      placeholder="00000000000000"
-                      className={cn(
-                        'h-9 w-full rounded-xl border bg-[var(--bg-card)] px-3 pr-9 text-sm font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2',
-                        siretValid === true
-                          ? 'border-emerald-400 focus:ring-emerald-400'
-                          : siretInput.length > 0
-                          ? 'border-amber-400 focus:ring-amber-400'
-                          : 'border-[var(--border)] focus:ring-blue-400'
-                      )}
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingProduct ? (editingProduct.price * 0.4).toFixed(2) : ''}
+                      className="h-9 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-3 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                    {siretValid === true && (
-                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
-                    )}
                   </div>
-                  {/* Helper text */}
-                  {siretInput.length > 0 && siretInput.length < 14 && (
-                    <p className="mt-1 text-xs text-amber-600">{14 - siretInput.length} digits remaining</p>
-                  )}
-                  {siretValid === true && producerName && (
-                    <p className="mt-1 text-xs text-emerald-600">{t.validSiret} — {producerName}</p>
-                  )}
-                  {siretValid === true && !producerName && (
-                    <p className="mt-1 text-xs text-emerald-600">{t.validSiret} — {t.unknownProducer}</p>
-                  )}
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Reorder Point</label>
+                    <input
+                      type="number"
+                      defaultValue={editingProduct ? editingProduct.reorderLevel : ''}
+                      className="h-9 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-3 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
                 </div>
 
                 {/* Toggles */}
                 <div className="flex items-center gap-6">
-                  {/* ESL Toggle */}
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <span className="text-sm text-[var(--text-primary)]">{t.eslPush}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEslEnabled(!eslEnabled)}
-                      className={cn(
-                        'relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors',
-                        eslEnabled ? 'bg-blue-600' : 'bg-slate-200'
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
-                          eslEnabled ? 'translate-x-4' : 'translate-x-0'
-                        )}
-                      />
-                    </button>
-                  </label>
-
                   {/* Active Toggle */}
                   <label className="flex cursor-pointer items-center gap-2">
                     <span className="text-sm text-[var(--text-primary)]">{t.active}</span>

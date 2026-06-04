@@ -9,8 +9,6 @@ interface AppContextValue {
   mobileSidebarOpen: boolean
   toggleMobileSidebar: () => void
   closeMobileSidebar: () => void
-  lang: 'en' | 'fr'
-  setLang: (l: 'en' | 'fr') => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -18,7 +16,6 @@ const AppContext = createContext<AppContextValue | null>(null)
 export function AppProvider({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  const [lang, setLang] = useState<'en' | 'fr'>('en')
 
   function toggleSidebar() {
     setSidebarCollapsed((prev) => !prev)
@@ -33,7 +30,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppContext.Provider value={{ sidebarCollapsed, setSidebarCollapsed, toggleSidebar, mobileSidebarOpen, toggleMobileSidebar, closeMobileSidebar, lang, setLang }}>
+    <AppContext.Provider value={{ sidebarCollapsed, setSidebarCollapsed, toggleSidebar, mobileSidebarOpen, toggleMobileSidebar, closeMobileSidebar }}>
       {children}
     </AppContext.Provider>
   )

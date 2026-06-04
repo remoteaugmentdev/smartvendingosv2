@@ -1,22 +1,22 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Printer, RefreshCw, User, Menu } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useAuth } from '@/context/AuthContext'
 import { en } from '@/locales/en'
-import { fr } from '@/locales/fr'
 import { cn } from '@/utils/cn'
 
 export function Topbar() {
-  const { toggleMobileSidebar, lang, setLang } = useApp()
+  const { toggleMobileSidebar } = useApp()
   const { user, profile, signOut } = useAuth()
   const pathname = usePathname()
   const [refreshing, setRefreshing] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  const t = lang === 'fr' ? fr : en
+  const t = en
 
   // Derive page title from pathname segments
   const segments = pathname.split('/').filter(Boolean)
@@ -55,32 +55,6 @@ export function Topbar() {
       {/* Right actions */}
       <div className="flex items-center gap-2 ml-auto">
 
-        {/* FR / EN language toggle — hidden on mobile */}
-        <div className="hidden sm:flex items-center rounded-full border border-[var(--border)] bg-slate-50 p-0.5 text-xs font-medium">
-          <button
-            onClick={() => setLang('en')}
-            className={cn(
-              'rounded-full px-2.5 py-1 transition-colors',
-              lang === 'en'
-                ? 'bg-white text-[var(--accent-primary)] shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-            )}
-          >
-            EN
-          </button>
-          <button
-            onClick={() => setLang('fr')}
-            className={cn(
-              'rounded-full px-2.5 py-1 transition-colors',
-              lang === 'fr'
-                ? 'bg-white text-[var(--accent-primary)] shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-            )}
-          >
-            FR
-          </button>
-        </div>
-
         <button
           onClick={() => window.print()}
           className="hidden sm:flex rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:bg-slate-100 hover:text-[var(--text-primary)]"
@@ -118,6 +92,13 @@ export function Topbar() {
                 )}
               </div>
               <hr className="border-[var(--border)]" />
+              <Link
+                href="/settings"
+                onClick={() => setDropdownOpen(false)}
+                className="block w-full px-3 py-2 text-left text-xs text-[var(--text-muted)] hover:bg-slate-50 hover:text-[var(--text-primary)]"
+              >
+                Settings
+              </Link>
               <button
                 onClick={() => {
                   setDropdownOpen(false)
@@ -125,7 +106,7 @@ export function Topbar() {
                 }}
                 className="w-full px-3 py-2 text-left text-xs text-[var(--text-muted)] hover:bg-slate-50 hover:text-[var(--text-primary)]"
               >
-                {lang === 'fr' ? 'Se déconnecter' : 'Sign out'}
+                Sign out
               </button>
             </div>
           )}
