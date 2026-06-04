@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/utils/cn'
 import { formatCurrency } from '@/utils/formatCurrency'
-import { STATUS_COLOR, type MapMachine, type MapStatus } from '@/components/map/FleetMap'
+import { STATUS_COLOR, type MapMachine, type MapStatus } from '@/components/map/types'
 
 const FleetMap = dynamic(() => import('@/components/map/FleetMap'), {
   ssr: false,

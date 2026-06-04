@@ -4,27 +4,10 @@ import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { type MapMachine, type MapStatus, STATUS_COLOR } from './types'
 
-export type MapStatus = 'online' | 'low' | 'offline' | 'tech'
-
-export interface MapMachine {
-  id: string
-  name: string
-  location: string
-  status: MapStatus
-  revenueToday: number
-  fill: number
-  lastService: string
-  lat: number
-  lng: number
-}
-
-export const STATUS_COLOR: Record<MapStatus, string> = {
-  online: '#10B981',
-  low: '#F59E0B',
-  offline: '#EF4444',
-  tech: '#3B82F6',
-}
+export type { MapStatus, MapMachine }
+export { STATUS_COLOR }
 
 const STATUS_LABEL: Record<MapStatus, string> = {
   online: 'Online',

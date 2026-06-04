@@ -3,14 +3,9 @@
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet'
 import L from 'leaflet'
+import { type RouteStop } from './types'
 
-export interface RouteStop {
-  id: string
-  name: string
-  location: string
-  lat: number
-  lng: number
-}
+export type { RouteStop }
 
 function numberedIcon(n: number) {
   return L.divIcon({

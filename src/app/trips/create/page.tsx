@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/Button'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ArrowLeft, Plus, X } from 'lucide-react'
-import type { RouteStop } from '@/components/map/RouteMap'
+import type { RouteStop } from '@/components/map/types'
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
   ssr: false,
