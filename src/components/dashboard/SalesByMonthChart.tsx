@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import {
   BarChart,
   Bar,
@@ -36,6 +38,9 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function SalesByMonthChart() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  if (!mounted) return <div style={{ height: 240 }} />
   return (
     <Card>
       <CardHeader>

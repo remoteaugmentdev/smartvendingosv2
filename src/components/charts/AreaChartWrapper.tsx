@@ -1,5 +1,4 @@
-'use client'
-
+import { useEffect, useState } from 'react'
 import {
   AreaChart,
   Area,
@@ -44,6 +43,15 @@ export function AreaChartWrapper({
   className,
   mini = false,
 }: AreaChartWrapperProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className={cn('w-full', className)} style={{ height }} />
+  }
+
   return (
     <div className={cn('w-full', className)} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">

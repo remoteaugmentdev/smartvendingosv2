@@ -1,5 +1,4 @@
-'use client'
-
+import { useEffect, useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -65,6 +64,15 @@ export function BarChartWrapper({
   showLegend = false,
   className,
 }: BarChartWrapperProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className={cn('w-full', className)} style={{ height }} />
+  }
+
   return (
     <div className={cn('w-full', className)} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
