@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { cn } from '@/utils/cn'
+import { useChartReady } from './useChartReady'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -43,17 +43,11 @@ export function DonutChartWrapper({
   height = 180,
   className,
 }: DonutChartWrapperProps) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return <div className={cn('w-full', className)} style={{ height }} />
-  }
+  const { ref, ready } = useChartReady()
 
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div ref={ref} className={cn('w-full', className)} style={{ height }}>
+      {ready && (
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -73,6 +67,7 @@ export function DonutChartWrapper({
           <Tooltip content={(props) => <CustomTooltip active={props.active} payload={props.payload as unknown as CustomTooltipProps['payload']} label={props.label} />} />
         </PieChart>
       </ResponsiveContainer>
+      )}
     </div>
   )
 }

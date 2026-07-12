@@ -1,5 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
+/* Type system: IBM Plex Sans for UI (instrument-precise, built for dense
+   operational screens), IBM Plex Mono for machine IDs, codes, and data.
+   The @theme override points Tailwind's font-mono utility at Plex Mono. */
+@theme {
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
 
 :root {
   --bg-page: #F8FAFC;
@@ -42,8 +49,60 @@ body {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   background-color: var(--bg-page);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Journey Mode: guided-tour motion ─────────────────────────────────────── */
+@keyframes tour-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tour-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tour-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Signature moment: a radar pulse behind the tour's compass, echoing the map. */
+@keyframes tour-radar {
+  0%   { transform: scale(0.5); opacity: 0.55; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+/* Marching dashes: the route reads as moving, like a live trip in progress. */
+@keyframes tour-dash {
+  to { stroke-dashoffset: -16; }
+}
+/* Pulsing halo around each machine pin (SVG-safe transform). */
+@keyframes tour-halo {
+  0%   { transform: scale(0.4); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes tour-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+/* The completion checkmark draws itself in. The hidden state lives inside the
+   keyframe (with fill-mode both), so if animations are disabled the tick simply
+   shows fully drawn instead of staying invisible. */
+@keyframes tour-check-draw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+/* The highlight ring breathes, drawing the eye without dimming the page. */
+@keyframes tour-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.20), 0 8px 24px rgba(37, 99, 235, 0.16); }
+  50%      { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.10), 0 10px 30px rgba(37, 99, 235, 0.24); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-animated {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

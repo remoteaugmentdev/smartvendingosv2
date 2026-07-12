@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -11,6 +10,7 @@ import {
   Cell,
 } from 'recharts'
 import { cn } from '@/utils/cn'
+import { useChartReady } from './useChartReady'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -64,17 +64,11 @@ export function BarChartWrapper({
   showLegend = false,
   className,
 }: BarChartWrapperProps) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return <div className={cn('w-full', className)} style={{ height }} />
-  }
+  const { ref, ready } = useChartReady()
 
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div ref={ref} className={cn('w-full', className)} style={{ height }}>
+      {ready && (
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
@@ -102,6 +96,7 @@ export function BarChartWrapper({
           ))}
         </BarChart>
       </ResponsiveContainer>
+      )}
     </div>
   )
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import {
   AreaChart,
   Area,
@@ -8,6 +7,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { cn } from '@/utils/cn'
+import { useChartReady } from './useChartReady'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -43,17 +43,11 @@ export function AreaChartWrapper({
   className,
   mini = false,
 }: AreaChartWrapperProps) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return <div className={cn('w-full', className)} style={{ height }} />
-  }
+  const { ref, ready } = useChartReady()
 
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div ref={ref} className={cn('w-full', className)} style={{ height }}>
+      {ready && (
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
           <defs>
@@ -65,7 +59,15 @@ export function AreaChartWrapper({
           {!mini && (
             <>
               <XAxis dataKey={xKey} tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} width={28} />
+              <YAxis
+                tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+                tickFormatter={(v) =>
+                  typeof v === 'number' && Math.abs(v) >= 1000 ? `${v / 1000}k` : `${v}`
+                }
+              />
               <Tooltip content={(props) => <CustomTooltip active={props.active} payload={props.payload as unknown as CustomTooltipProps['payload']} label={props.label} />} />
             </>
           )}
@@ -79,6 +81,7 @@ export function AreaChartWrapper({
           />
         </AreaChart>
       </ResponsiveContainer>
+      )}
     </div>
   )
 }

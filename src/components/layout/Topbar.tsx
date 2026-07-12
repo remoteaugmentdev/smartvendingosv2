@@ -51,6 +51,15 @@ export function Topbar() {
       {/* Page title */}
       <h1 className="text-base font-semibold text-[var(--text-primary)] shrink-0">{pageTitle}</h1>
 
+      {/* Demo-data indicator */}
+      <span
+        className="hidden md:inline-flex min-w-0 shrink items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-medium text-amber-700"
+      >
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+        <span className="truncate">
+          Demo mode: all figures shown are sample data for demonstration only.
+        </span>
+      </span>
 
       {/* Right actions */}
       <div className="flex items-center gap-2 ml-auto">
