@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     // Sign a JWT session
     const token = await signSession({ userId: user.id, email: '', role })
 
-    const response = NextResponse.json({ ok: true })
+    const response = NextResponse.json({ ok: true, role })
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

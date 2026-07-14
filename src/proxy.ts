@@ -8,7 +8,12 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === '/' ||
     pathname.startsWith('/login') ||
+    pathname.startsWith('/admin/login') ||
+    pathname.startsWith('/landing') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/signup') ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/leads') ||
     pathname.startsWith('/_next') ||
     pathname === '/favicon.ico'
   ) {
@@ -17,14 +22,14 @@ export async function proxy(request: NextRequest) {
 
   const session = await getSessionFromRequest(request)
 
-  // No session → redirect to login
-  if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // Admin area is master-only; its entrance is the admin login page
+  if (pathname.startsWith('/admin') && session?.role !== 'master') {
+    return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
-  // Admin area is master-only
-  if (pathname.startsWith('/admin') && session.role !== 'master') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // No session → send to the landing page; the demo form is the public entrance
+  if (!session) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return NextResponse.next({ request })

@@ -284,12 +284,6 @@ export const TOUR_STEPS: TourStep[] = [
     body: 'Manage user accounts, their roles, and which machines each person is assigned to. As the operation grows, access stays tidy and auditable, so you always know who can touch what.',
   },
   {
-    id: 'admin-users',
-    route: '/admin/users',
-    title: 'Admin: account provisioning',
-    body: 'The administrator view for provisioning accounts and higher-level user management. It is the control panel behind the scenes that keeps a growing team secure and organised.',
-  },
-  {
     id: 'settings',
     route: '/settings',
     title: 'Settings: your workspace',

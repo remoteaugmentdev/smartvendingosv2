@@ -1,9 +1,13 @@
 import pg from 'pg';
 const { Client } = pg;
 
-const connectionString = 'postgresql://postgres.thccoywskpfwfadtlbxc:SupaRemote10@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres';
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error('DATABASE_URL is not set. Run with: node --env-file=.env.local create-admin.mjs');
+  process.exit(1);
+}
 
-const client = new Client({ connectionString });
+const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
 
 async function run() {
   try {
@@ -60,11 +64,11 @@ async function run() {
     try {
       const profileCheck = await client.query('SELECT id FROM public.profiles WHERE id = $1', [userId]);
       if (profileCheck.rows.length > 0) {
-        await client.query(`UPDATE public.profiles SET role = 'admin' WHERE id = $1`, [userId]);
+        await client.query(`UPDATE public.profiles SET role = 'master' WHERE id = $1`, [userId]);
       } else {
         await client.query(`
           INSERT INTO public.profiles (id, email, first_name, last_name, role)
-          VALUES ($1, $2, 'Admin', 'User', 'admin')
+          VALUES ($1, $2, 'Admin', 'User', 'master')
         `, [userId, email]);
       }
       console.log('Profile updated to admin successfully.');

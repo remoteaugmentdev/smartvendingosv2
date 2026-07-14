@@ -12,14 +12,17 @@ import { RestartTourButton } from '@/components/tour/RestartTourButton'
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isPublic =
+  // Bare routes: public pages plus the admin panel, which is isolated
+  // from the demo dashboard shell (no sidebar, topbar or tour)
+  const isBare =
     pathname === '/' ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/landing') ||
     pathname.startsWith('/pricing') ||
-    pathname.startsWith('/signup')
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/admin')
 
-  if (isPublic) return <>{children}</>
+  if (isBare) return <>{children}</>
 
   return (
     <TourProvider>

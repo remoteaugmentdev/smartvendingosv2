@@ -31,7 +31,7 @@ export function LoginForm() {
       return
     }
 
-    router.push('/dashboard')
+    router.push(data.role === 'master' ? '/admin/leads' : '/dashboard')
     router.refresh()
   }
 
