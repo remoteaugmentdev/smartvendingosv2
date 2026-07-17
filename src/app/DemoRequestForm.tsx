@@ -30,7 +30,7 @@ function Select({ label, name, options }: { label: string; name: string; options
   )
 }
 
-export function DemoRequestForm() {
+export function DemoRequestForm({ companyName, slug }: { companyName?: string; slug?: string } = {}) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -53,6 +53,7 @@ export function DemoRequestForm() {
       return
     }
 
+    if (companyName) sessionStorage.setItem('demoCompanyName', companyName)
     router.push('/dashboard')
     router.refresh()
   }
@@ -70,10 +71,15 @@ export function DemoRequestForm() {
         </label>
       </div>
 
-      <label className="block space-y-1.5">
-        <span className="block text-[13px] font-medium text-slate-700">Company name</span>
-        <input name="company" type="text" required autoComplete="organization" placeholder="Peak Vending Solutions" className={FIELD_CLS} />
-      </label>
+      {companyName ? (
+        <input type="hidden" name="company" value={companyName} />
+      ) : (
+        <label className="block space-y-1.5">
+          <span className="block text-[13px] font-medium text-slate-700">Company name</span>
+          <input name="company" type="text" required autoComplete="organization" placeholder="Peak Vending Solutions" className={FIELD_CLS} />
+        </label>
+      )}
+      {slug && <input type="hidden" name="slug" value={slug} />}
 
       <Select
         label="How many machines do you currently operate?"

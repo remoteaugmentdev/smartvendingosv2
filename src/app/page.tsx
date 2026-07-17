@@ -1,6 +1,8 @@
 import { CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { DemoRequestForm } from './DemoRequestForm'
+import { getSession } from '@/utils/session'
 
 export const metadata = {
   title: 'SmartVendingOS: Run Your Vending Fleet From One Command Center',
@@ -67,7 +69,15 @@ function VendingMachineArt() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage({
+  companyName,
+  customText,
+  slug,
+}: { companyName?: string; customText?: string; slug?: string } = {}) {
+  // Only a personalized company link can already have a matching session;
+  // the bare homepage always shows the form, even if a session cookie exists
+  const session = slug ? await getSession() : null
+
   return (
     <div
       className="flex min-h-[100dvh] flex-col text-white"
@@ -122,11 +132,40 @@ export default function HomePage() {
 
           {/* Demo form card */}
           <div id="demo" className="rounded-2xl bg-white p-6 text-slate-900 shadow-2xl shadow-blue-950/50 sm:p-8 lg:ml-auto lg:w-full lg:max-w-lg">
-            <h2 className="text-lg font-bold text-slate-900">See it live in two minutes</h2>
-            <p className="mb-6 mt-1 text-sm text-slate-500">
-              Tell us about your operation and jump straight into the demo dashboard.
-            </p>
-            <DemoRequestForm />
+            {session ? (
+              <>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Welcome back{companyName ? `, ${companyName}` : ''}
+                </h2>
+                <p className="mb-6 mt-1 text-sm text-slate-500">
+                  You already requested a demo. Jump back into the dashboard.
+                </p>
+                <Link
+                  href="/dashboard"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]"
+                >
+                  Go to dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <h2 className="flex flex-wrap items-baseline gap-x-1 text-lg font-bold text-slate-900">
+                  <span>See it live in two minutes{companyName ? ',' : ''}</span>
+                  {companyName && (
+                    <span className="max-w-[16ch] truncate" title={companyName}>
+                      {companyName}
+                    </span>
+                  )}
+                </h2>
+                <p
+                  className="mb-6 mt-1 line-clamp-2 text-sm text-slate-500"
+                  title={customText}
+                >
+                  {customText || 'Tell us about your operation and jump straight into the demo dashboard.'}
+                </p>
+                <DemoRequestForm companyName={companyName} slug={slug} />
+              </>
+            )}
           </div>
         </div>
       </main>

@@ -17,6 +17,7 @@ interface TourContextValue {
   completeOpen: boolean
   stepIndex: number
   stepCount: number
+  companyName: string | null
   openWelcome: () => void
   beginTour: () => void
   dismissWelcome: () => void
@@ -37,6 +38,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const [active, setActive] = useState(false)
   const [completeOpen, setCompleteOpen] = useState(false)
   const [stepIndex, setStepIndex] = useState(0)
+  const [companyName, setCompanyName] = useState<string | null>(null)
 
   const openWelcome = useCallback(() => {
     setActive(false)
@@ -88,6 +90,13 @@ export function TourProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer)
   }, [openWelcome])
 
+  // One-shot handoff from the demo landing page: DemoRequestForm stashes the
+  // company name in sessionStorage right before redirecting to /dashboard.
+  useEffect(() => {
+    const stored = sessionStorage.getItem('demoCompanyName')
+    if (stored) setCompanyName(stored)
+  }, [])
+
   return (
     <TourContext.Provider
       value={{
@@ -96,6 +105,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
         completeOpen,
         stepIndex,
         stepCount: TOUR_STEPS.length,
+        companyName,
         openWelcome,
         beginTour,
         dismissWelcome,

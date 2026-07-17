@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { LogoutButton } from './LogoutButton'
 
@@ -15,6 +16,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </span>
           </div>
           <nav className="flex items-center gap-5 text-sm font-medium text-[var(--text-muted)]">
+            <Link href="/admin/demo-link" className="hover:text-[var(--text-primary)]">
+              Demo Link
+            </Link>
             <LogoutButton />
           </nav>
         </div>

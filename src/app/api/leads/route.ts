@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { pool } from '@/utils/db'
 import { signSession, getSessionFromRequest, COOKIE_NAME } from '@/utils/session'
+import { ensureLeadsTable } from '@/utils/leadsSchema'
 
 const FLEET_SIZES = ['1-10', '11-50', '51-200', '200+']
 const PAIN_POINTS = ['Inventory Management', 'Route Inefficiency', 'Revenue Tracking', 'Machine Downtime']
@@ -8,7 +9,7 @@ const SOLUTIONS = ['Excel/Pen & Paper', 'Nayax', 'Cantaloupe', 'Parlevel', 'Othe
 
 export async function POST(request: NextRequest) {
   try {
-    const { fullName, email, company, fleetSize, painPoint, currentSolution } = await request.json()
+    const { fullName, email, company, fleetSize, painPoint, currentSolution, slug } = await request.json()
 
     if (
       !fullName?.trim() ||
@@ -21,26 +22,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please fill in every field.' }, { status: 400 })
     }
 
-    // ponytail: table created on first lead instead of a migration; move to setup-db.mjs if schema grows
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS public.leads (
-        id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        full_name        text NOT NULL,
-        email            text NOT NULL,
-        company          text NOT NULL,
-        fleet_size       text NOT NULL,
-        pain_point       text NOT NULL,
-        current_solution text NOT NULL,
-        created_at       timestamptz NOT NULL DEFAULT now()
-      )
-    `)
+    await ensureLeadsTable()
 
-    const { rows } = await pool.query(
-      `INSERT INTO public.leads (full_name, email, company, fleet_size, pain_point, current_solution)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id`,
-      [fullName.trim(), email.trim(), company.trim(), fleetSize, painPoint, currentSolution]
-    )
+    const trimmedSlug = slug?.trim()
+    let leadId: string | undefined
+
+    if (trimmedSlug) {
+      const { rows } = await pool.query(
+        `UPDATE public.leads SET full_name=$1, email=$2, company=$3, fleet_size=$4, pain_point=$5, current_solution=$6
+         WHERE slug=$7
+         RETURNING id`,
+        [fullName.trim(), email.trim(), company.trim(), fleetSize, painPoint, currentSolution, trimmedSlug]
+      )
+      if (rows[0]) leadId = rows[0].id
+    }
+
+    if (!leadId) {
+      const { rows } = await pool.query(
+        `INSERT INTO public.leads (full_name, email, company, fleet_size, pain_point, current_solution, slug)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id`,
+        [fullName.trim(), email.trim(), company.trim(), fleetSize, painPoint, currentSolution, trimmedSlug || null]
+      )
+      leadId = rows[0].id
+    }
 
     const response = NextResponse.json({ ok: true })
 
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
     // downgrade a signed-in master testing the form
     const existing = await getSessionFromRequest(request)
     if (existing?.role !== 'master') {
-      const token = await signSession({ userId: rows[0].id, email: email.trim(), role: 'demo' })
+      const token = await signSession({ userId: leadId!, email: email.trim(), role: 'demo', slug: trimmedSlug || undefined })
       response.cookies.set(COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSessionFromRequest } from '@/utils/session'
+import { isCompanyDemoLink } from '@/utils/companyLink'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -15,7 +16,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/leads') ||
     pathname.startsWith('/_next') ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    isCompanyDemoLink(pathname)
   ) {
     return NextResponse.next({ request })
   }

@@ -31,6 +31,7 @@ export async function GET() {
       role: profile?.role ?? session.role,
       expires_at: profile?.expires_at ?? null,
       label: profile?.label ?? null,
+      slug: session.slug ?? null,
     },
   })
 }

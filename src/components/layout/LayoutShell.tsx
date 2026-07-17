@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { isCompanyDemoLink } from '@/utils/companyLink'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { MainContent } from './MainContent'
@@ -20,7 +21,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/landing') ||
     pathname.startsWith('/pricing') ||
     pathname.startsWith('/signup') ||
-    pathname.startsWith('/admin')
+    pathname.startsWith('/admin') ||
+    isCompanyDemoLink(pathname)
 
   if (isBare) return <>{children}</>
 

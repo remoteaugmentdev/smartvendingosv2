@@ -33,7 +33,7 @@ export function Topbar() {
     setTimeout(() => setRefreshing(false), 1200)
   }
 
-  const displayName = profile?.label ?? user?.email ?? 'Account'
+  const displayName = profile?.label ?? (profile?.role === 'master' ? user?.email : null)
 
   return (
     <header
@@ -91,9 +91,11 @@ export function Topbar() {
           {dropdownOpen && (
             <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] py-1 shadow-[var(--shadow-hover)]">
               <div className="px-3 py-2">
-                <p className="text-xs font-medium text-[var(--text-primary)] truncate">
-                  {displayName}
-                </p>
+                {displayName && (
+                  <p className="text-xs font-medium text-[var(--text-primary)] truncate">
+                    {displayName}
+                  </p>
+                )}
                 {profile?.role === 'demo' && (
                   <span className="mt-0.5 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
                     Demo account
@@ -115,7 +117,7 @@ export function Topbar() {
                 }}
                 className="w-full px-3 py-2 text-left text-xs text-[var(--text-muted)] hover:bg-slate-50 hover:text-[var(--text-primary)]"
               >
-                Sign out
+                Exit
               </button>
             </div>
           )}

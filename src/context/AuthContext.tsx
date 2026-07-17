@@ -8,6 +8,7 @@ interface Profile {
   role: 'master' | 'demo'
   expires_at: string | null
   label: string | null
+  slug: string | null
 }
 
 interface AuthContextValue {
@@ -34,9 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function signOut() {
+    const destination = user?.slug ? `/${user.slug}` : '/'
     await fetch('/api/auth/logout', { method: 'POST' })
     setUser(null)
-    window.location.href = '/login'
+    window.location.href = destination
   }
 
   return (

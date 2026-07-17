@@ -33,7 +33,7 @@ const GUIDELINES = [
 ]
 
 export function TourWelcome() {
-  const { welcomeOpen, stepCount, beginTour, dismissWelcome } = useTour()
+  const { welcomeOpen, stepCount, beginTour, dismissWelcome, companyName } = useTour()
   const [reducedMotion, setReducedMotion] = useState(false)
 
   // The traveling dot uses SVG SMIL, which CSS media queries can't pause, so we
@@ -192,7 +192,7 @@ export function TourWelcome() {
             id="tour-welcome-title"
             className="mt-1 text-xl font-bold text-[var(--text-primary)]"
           >
-            Take the tour of SmartVendingOS
+            Take the tour of {companyName ?? 'SmartVendingOS'}
           </h2>
           <p className="mt-1.5 text-[15px] leading-relaxed text-slate-700">
             A quick, guided walk through everything the platform does, about two minutes
