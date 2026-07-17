@@ -6,6 +6,7 @@ import { X, ArrowDown } from 'lucide-react'
 import { useTour } from '@/context/TourContext'
 import { Button } from '@/components/ui/Button'
 import { TOUR_STEPS, type TourStep } from './tourSteps'
+import { parseCompanyRoute } from '@/utils/companyLink'
 
 const RING_PADDING = 6
 
@@ -118,7 +119,12 @@ export function TourOverlay() {
   const step = TOUR_STEPS[stepIndex]
   const isFirst = stepIndex === 0
   const isLast = stepIndex === stepCount - 1
-  const onCorrectRoute = !!step && pathname === step.route
+  // Personalized demo links (/{slug}/dashboard) are rewritten server-side to
+  // the flat route but keep the slug in the address bar, so compare against
+  // the resolved route, and preserve the slug when the tour navigates itself.
+  const resolvedPathname = parseCompanyRoute(pathname) ?? pathname
+  const slugPrefix = resolvedPathname === pathname ? null : pathname.split('/')[1]
+  const onCorrectRoute = !!step && resolvedPathname === step.route
 
   const handleNext = useCallback(() => {
     if (isLast) finishTour()
@@ -140,15 +146,15 @@ export function TourOverlay() {
       prevStepRef.current = stepIndex
       settledRef.current = false
     }
-    if (pathname === step.route) {
+    if (resolvedPathname === step.route) {
       settledRef.current = true
       return
     }
     // We're off the step's route. If we had already settled on it, the user
     // navigated away on their own.
     if (settledRef.current) setNudge(true)
-    router.push(step.route)
-  }, [active, step, pathname, stepIndex, router])
+    router.push(slugPrefix ? `/${slugPrefix}${step.route}` : step.route)
+  }, [active, step, pathname, resolvedPathname, slugPrefix, stepIndex, router])
 
   // Keep the nudge visible until the user actually uses the tour controls
   // (which advances the step). It should not flash and vanish on its own.
@@ -160,8 +166,8 @@ export function TourOverlay() {
   useEffect(() => {
     if (!active) return
     const nextStep = TOUR_STEPS[stepIndex + 1]
-    if (nextStep) router.prefetch(nextStep.route)
-  }, [active, stepIndex, router])
+    if (nextStep) router.prefetch(slugPrefix ? `/${slugPrefix}${nextStep.route}` : nextStep.route)
+  }, [active, stepIndex, router, slugPrefix])
 
   // Find the target (retrying until it mounts), bring it into view, and measure
   // it. The retry means slow content like the map never blocks the ring.

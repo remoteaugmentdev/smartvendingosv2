@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Printer, RefreshCw, User, Menu } from 'lucide-react'
+import { Printer, RefreshCw, User, Menu, LogOut } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useAuth } from '@/context/AuthContext'
 import { en } from '@/locales/en'
@@ -110,18 +110,18 @@ export function Topbar() {
               >
                 Settings
               </Link>
-              <button
-                onClick={() => {
-                  setDropdownOpen(false)
-                  signOut()
-                }}
-                className="w-full px-3 py-2 text-left text-xs text-[var(--text-muted)] hover:bg-slate-50 hover:text-[var(--text-primary)]"
-              >
-                Exit
-              </button>
             </div>
           )}
         </div>
+
+        <button
+          onClick={signOut}
+          aria-label="Exit"
+          className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut size={18} />
+          <span className="hidden sm:inline text-sm font-medium">Exit</span>
+        </button>
       </div>
     </header>
   )

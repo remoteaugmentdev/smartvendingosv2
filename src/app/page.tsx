@@ -1,7 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
-import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { DemoRequestForm } from './DemoRequestForm'
+import { ResumeDashboardLink } from './ResumeDashboardLink'
 import { getSession } from '@/utils/session'
 
 export const metadata = {
@@ -73,12 +73,14 @@ export default async function HomePage({
   companyName,
   customText,
   slug,
-}: { companyName?: string; customText?: string; slug?: string } = {}) {
-  // Only show "already filled" when the session was created by submitting
-  // THIS slug's form, not just any session (e.g. a master admin browsing
-  // the link, or a demo session from a different company's link)
+  alreadyFilled,
+}: { companyName?: string; customText?: string; slug?: string; alreadyFilled?: boolean } = {}) {
+  // Only trust the session for "already filled" when it matches THIS slug
+  // (e.g. a master admin browsing the link, or a demo session from a
+  // different company's link shouldn't trigger it). Falls back to the DB
+  // record so a signed-out returning visitor still skips the form.
   const session = slug ? await getSession() : null
-  const filledThisSlug = session?.slug === slug ? session : null
+  const filledThisSlug = session?.slug === slug || alreadyFilled
 
   return (
     <div
@@ -142,12 +144,7 @@ export default async function HomePage({
                 <p className="mb-6 mt-1 text-sm text-slate-500">
                   You already requested a demo. Jump back into the dashboard.
                 </p>
-                <Link
-                  href={`/${slug}/dashboard`}
-                  className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]"
-                >
-                  Go to dashboard
-                </Link>
+                <ResumeDashboardLink slug={slug!} />
               </>
             ) : (
               <>

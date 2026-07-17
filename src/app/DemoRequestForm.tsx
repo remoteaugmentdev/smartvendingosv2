@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Loader2 } from 'lucide-react'
 
 const FIELD_CLS =
   'h-11 w-full rounded-xl border-0 bg-slate-100 px-4 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all'
@@ -54,7 +54,7 @@ export function DemoRequestForm({ companyName, slug }: { companyName?: string; s
     }
 
     if (companyName) sessionStorage.setItem('demoCompanyName', companyName)
-    router.push('/dashboard')
+    router.push(slug ? `/${slug}/dashboard` : '/dashboard')
     router.refresh()
   }
 
@@ -104,9 +104,16 @@ export function DemoRequestForm({ companyName, slug }: { companyName?: string; s
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 h-12 w-full rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? 'Preparing your demo…' : 'Start Interactive Demo'}
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Preparing your demo…
+          </>
+        ) : (
+          'Start Interactive Demo'
+        )}
       </button>
 
       <p className="text-center text-xs text-slate-400">No credit card. No setup. Instant access.</p>

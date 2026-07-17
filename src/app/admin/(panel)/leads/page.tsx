@@ -1,6 +1,7 @@
 import { format, isAfter, subDays } from 'date-fns'
 import { Download } from 'lucide-react'
 import { pool } from '@/utils/db'
+import { ensureLeadsTable } from '@/utils/leadsSchema'
 import { Badge } from '@/components/ui/Badge'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LeadsChart, LeadsTable, type Lead } from './LeadsTable'
@@ -12,8 +13,9 @@ const HIGH_PRIORITY_FLEETS = ['51-200', '200+']
 
 async function getLeads(): Promise<Lead[]> {
   try {
+    await ensureLeadsTable()
     const { rows } = await pool.query(
-      `SELECT id, full_name, email, company, fleet_size, pain_point, current_solution, created_at, slug
+      `SELECT id, full_name, email, company, fleet_size, pain_point, current_solution, created_at, slug, custom_message
        FROM public.leads
        ORDER BY created_at DESC`
     )

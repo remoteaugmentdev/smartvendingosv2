@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Compass, Sparkles, ChevronRight, Map, RotateCcw } from 'lucide-react'
+import { Compass, Sparkles, ChevronRight, Map, RotateCcw, Loader2 } from 'lucide-react'
 import { useTour } from '@/context/TourContext'
 import { Button } from '@/components/ui/Button'
 
@@ -35,6 +35,7 @@ const GUIDELINES = [
 export function TourWelcome() {
   const { welcomeOpen, stepCount, beginTour, dismissWelcome, companyName } = useTour()
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [ready, setReady] = useState(false)
 
   // The traveling dot uses SVG SMIL, which CSS media queries can't pause, so we
   // detect prefers-reduced-motion here and simply not render it.
@@ -46,10 +47,26 @@ export function TourWelcome() {
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  // Move focus to the primary action when the card opens; Esc dismisses it.
+  // Brief loader before the card itself, so the card's entrance reads as a
+  // deliberate reveal instead of popping in the instant the shell mounts.
+  useEffect(() => {
+    if (!welcomeOpen) {
+      setReady(false)
+      return
+    }
+    const t = setTimeout(() => setReady(true), 500)
+    return () => clearTimeout(t)
+  }, [welcomeOpen])
+
+  // Move focus to the primary action once the card itself is showing; Esc
+  // dismisses at any point, including during the loader.
+  useEffect(() => {
+    if (!ready) return
+    ;(document.querySelector('[data-tour-start]') as HTMLElement | null)?.focus()
+  }, [ready])
+
   useEffect(() => {
     if (!welcomeOpen) return
-    ;(document.querySelector('[data-tour-start]') as HTMLElement | null)?.focus()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') dismissWelcome()
     }
@@ -68,7 +85,16 @@ export function TourWelcome() {
         onClick={dismissWelcome}
       />
 
-      {/* Card */}
+      {!ready ? (
+        <div
+          aria-hidden
+          className="tour-animated relative"
+          style={{ animation: 'tour-fade 0.2s ease-out both' }}
+        >
+          <Loader2 size={32} className="animate-spin text-white" />
+        </div>
+      ) : (
+      /* Card */
       <div
         role="dialog"
         aria-modal="true"
@@ -232,6 +258,7 @@ export function TourWelcome() {
           </p>
         </div>
       </div>
+      )}
     </div>
   )
 }

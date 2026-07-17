@@ -81,13 +81,13 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
   // Auto-open the welcome card once when the authenticated shell first mounts
   // (on entering the app / a fresh load). It doesn't re-fire on route changes
-  // because this provider persists. A short delay lets the page paint first.
+  // because this provider persists. Effects already run after paint, so the
+  // card's own CSS entrance animation is the only transition, no extra wait.
   const autoStarted = useRef(false)
   useEffect(() => {
     if (autoStarted.current) return
     autoStarted.current = true
-    const timer = setTimeout(openWelcome, 400)
-    return () => clearTimeout(timer)
+    openWelcome()
   }, [openWelcome])
 
   // One-shot handoff from the demo landing page: DemoRequestForm stashes the

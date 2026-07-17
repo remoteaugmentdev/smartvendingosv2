@@ -6,16 +6,19 @@ type Props = {
   params: Promise<{ company: string }>
 }
 
-async function getCustomMessage(slug: string): Promise<string | undefined> {
+type LeadState = { customText?: string; alreadyFilled: boolean }
+
+async function getLeadState(slug: string): Promise<LeadState> {
   try {
     await ensureLeadsTable()
-    const { rows } = await pool.query<{ custom_message: string | null }>(
-      `SELECT custom_message FROM public.leads WHERE slug = $1`,
+    const { rows } = await pool.query<{ custom_message: string | null; full_name: string | null; email: string | null }>(
+      `SELECT custom_message, full_name, email FROM public.leads WHERE slug = $1`,
       [slug]
     )
-    return rows[0]?.custom_message ?? undefined
+    const row = rows[0]
+    return { customText: row?.custom_message ?? undefined, alreadyFilled: !!(row?.full_name && row?.email) }
   } catch (err) {
-    if ((err as { code?: string }).code === '42P01') return undefined
+    if ((err as { code?: string }).code === '42P01') return { alreadyFilled: false }
     throw err
   }
 }
@@ -31,7 +34,9 @@ export default async function CompanyLandingPage({ params }: Props) {
     .filter(Boolean)
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(' ')
-  const customText = await getCustomMessage(company)
+  const { customText, alreadyFilled } = await getLeadState(company)
 
-  return <HomePage companyName={displayName} customText={customText} slug={company} />
+  return (
+    <HomePage companyName={displayName} customText={customText} slug={company} alreadyFilled={alreadyFilled} />
+  )
 }

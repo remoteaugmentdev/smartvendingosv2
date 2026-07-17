@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export function LoginForm() {
   const router = useRouter()
@@ -89,9 +89,16 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 h-12 w-full rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+        className="mt-1 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Signing in…
+          </>
+        ) : (
+          'Sign in'
+        )}
       </button>
     </form>
   )
