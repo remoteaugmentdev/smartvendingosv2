@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSessionFromRequest } from '@/utils/session'
-import { isCompanyDemoLink } from '@/utils/companyLink'
+import { isCompanyDemoLink, parseCompanyRoute } from '@/utils/companyLink'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -32,6 +32,16 @@ export async function proxy(request: NextRequest) {
   // No session → send to the landing page; the demo form is the public entrance
   if (!session) {
     return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // Personalized in-app URLs (/{slug}/dashboard, /{slug}/orders, ...): keep the
+  // slug visible in the address bar but serve the real route underneath. No
+  // data is scoped by slug: this app has no per-tenant data, see AGENTS.md.
+  const companyRoute = parseCompanyRoute(pathname)
+  if (companyRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = companyRoute
+    return NextResponse.rewrite(url)
   }
 
   return NextResponse.next({ request })

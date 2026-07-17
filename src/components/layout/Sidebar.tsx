@@ -27,6 +27,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
+import { useAuth } from '@/context/AuthContext'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/utils/cn'
 import { en } from '@/locales/en'
@@ -55,18 +56,21 @@ const NAV_ITEMS: { href: string; navKey: keyof typeof en.nav; Icon: LucideIcon }
 
 export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, closeMobileSidebar } = useApp()
+  const { user } = useAuth()
   const pathname = usePathname()
   const t = en
+  const prefix = user?.slug ? `/${user.slug}` : ''
 
   const navItems = (
     <nav className="flex flex-1 min-h-0 flex-col gap-0.5 overflow-y-auto py-3 px-2">
       {NAV_ITEMS.map(({ href, navKey, Icon }) => {
         const label = t.nav[navKey]
-        const active = pathname === href || pathname.startsWith(href + '/')
+        const fullHref = `${prefix}${href}`
+        const active = pathname === fullHref || pathname.startsWith(fullHref + '/')
         return (
           <Link
             key={href}
-            href={href}
+            href={fullHref}
             onClick={closeMobileSidebar}
             title={sidebarCollapsed ? label : undefined}
             className={cn(
@@ -105,11 +109,12 @@ export function Sidebar() {
         <nav className="flex flex-1 min-h-0 flex-col gap-0.5 overflow-y-auto py-3 px-2">
           {NAV_ITEMS.map(({ href, navKey, Icon }) => {
             const label = t.nav[navKey]
-            const active = pathname === href || pathname.startsWith(href + '/')
+            const fullHref = `${prefix}${href}`
+            const active = pathname === fullHref || pathname.startsWith(fullHref + '/')
             return (
               <Link
                 key={href}
-                href={href}
+                href={fullHref}
                 title={sidebarCollapsed ? label : undefined}
                 className={cn(
                   'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',

@@ -74,9 +74,11 @@ export default async function HomePage({
   customText,
   slug,
 }: { companyName?: string; customText?: string; slug?: string } = {}) {
-  // Only a personalized company link can already have a matching session;
-  // the bare homepage always shows the form, even if a session cookie exists
+  // Only show "already filled" when the session was created by submitting
+  // THIS slug's form, not just any session (e.g. a master admin browsing
+  // the link, or a demo session from a different company's link)
   const session = slug ? await getSession() : null
+  const filledThisSlug = session?.slug === slug ? session : null
 
   return (
     <div
@@ -132,7 +134,7 @@ export default async function HomePage({
 
           {/* Demo form card */}
           <div id="demo" className="rounded-2xl bg-white p-6 text-slate-900 shadow-2xl shadow-blue-950/50 sm:p-8 lg:ml-auto lg:w-full lg:max-w-lg">
-            {session ? (
+            {filledThisSlug ? (
               <>
                 <h2 className="text-lg font-bold text-slate-900">
                   Welcome back{companyName ? `, ${companyName}` : ''}
@@ -141,7 +143,7 @@ export default async function HomePage({
                   You already requested a demo. Jump back into the dashboard.
                 </p>
                 <Link
-                  href="/dashboard"
+                  href={`/${slug}/dashboard`}
                   className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:from-blue-600 hover:to-blue-800 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]"
                 >
                   Go to dashboard

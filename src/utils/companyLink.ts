@@ -13,3 +13,10 @@ export function isCompanyDemoLink(pathname: string) {
   const [, first, rest] = pathname.split('/')
   return Boolean(first) && !rest && !APP_ROUTES.has(first)
 }
+
+export function parseCompanyRoute(pathname: string): string | null {
+  const [, first, ...rest] = pathname.split('/')
+  if (!first || APP_ROUTES.has(first) || rest.length === 0) return null
+  if (!APP_ROUTES.has(rest[0])) return null
+  return `/${rest.join('/')}`
+}
