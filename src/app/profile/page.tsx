@@ -23,13 +23,24 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [toast, setToast] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [displayName, setDisplayName] = useState('')
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((r) => r.json())
-      .then((d) => { if (d.user?.email) setUserEmail(d.user.email) })
+      .then((d) => {
+        if (d.user?.email) setUserEmail(d.user.email)
+        setDisplayName(d.user?.label || d.user?.slug || 'Account')
+      })
       .catch(() => {})
   }, [])
+
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0].toUpperCase())
+    .join('') || '—'
 
   function showToast(msg: string) {
     setToast(msg)
@@ -66,12 +77,12 @@ export default function ProfilePage() {
         <div className="flex flex-col items-center gap-4 py-4">
           {/* Avatar */}
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white shadow-lg">
-            LA
+            {initials}
           </div>
 
           {/* Name + Role */}
           <div className="text-center">
-            <h2 className="text-lg font-bold text-[var(--text-primary)]">LDA Admin</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">{displayName || '—'}</h2>
             <Badge variant="info" className="mt-1">
               {t.role}
             </Badge>

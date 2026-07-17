@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Map, Sparkles, Wallet, RotateCcw, ChevronRight } from 'lucide-react'
 import { useTour } from '@/context/TourContext'
 import { Button } from '@/components/ui/Button'
+import { parseCompanyRoute } from '@/utils/companyLink'
 
 const HIGHLIGHTS = [
   { Icon: Map, text: 'A live map and full control of every machine' },
@@ -72,11 +73,16 @@ function playMelody() {
 export function TourComplete() {
   const { completeOpen, stepCount, closeComplete, beginTour } = useTour()
   const router = useRouter()
+  const pathname = usePathname()
 
   // End on the dashboard (home), not wherever the final navigation happened to
-  // land, so finishing is deterministic.
+  // land, so finishing is deterministic. Personalized demo links keep a slug
+  // prefix on every route (see TourOverlay), so preserve it here too instead
+  // of dropping the visitor back onto the flat, unbranded URL.
+  const resolvedPathname = parseCompanyRoute(pathname) ?? pathname
+  const slugPrefix = resolvedPathname === pathname ? null : pathname.split('/')[1]
   const goHome = () => {
-    router.push('/dashboard')
+    router.push(slugPrefix ? `/${slugPrefix}/dashboard` : '/dashboard')
     closeComplete()
   }
 
