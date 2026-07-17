@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 import {
   BarChart,
   Bar,
@@ -13,6 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
+import { useChartReady } from '@/components/charts/useChartReady'
 
 const data = [
   { category: 'Food',     sales: 117, quantity: 151 },
@@ -42,15 +41,14 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function SalesByTypeChart() {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div style={{ height: 220 }} />
+  const { ref, ready } = useChartReady()
   return (
     <Card>
       <CardHeader>
         <CardTitle>Sales by Type</CardTitle>
       </CardHeader>
-      <div style={{ height: 220 }}>
+      <div ref={ref} style={{ height: 220 }}>
+        {ready && (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -62,6 +60,7 @@ export function SalesByTypeChart() {
             <Bar dataKey="quantity" name="Quantity"  fill="#F59E0B" radius={[3, 3, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </Card>
   )

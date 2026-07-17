@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 import {
   BarChart,
   Bar,
@@ -13,6 +11,7 @@ import {
 } from 'recharts'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { StatCard } from '@/components/ui/StatCard'
+import { useChartReady } from '@/components/charts/useChartReady'
 
 const data = [
   { name: 'Cash Collected', value: 220, color: '#2563EB' },
@@ -38,16 +37,15 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function CashFlowCard() {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div style={{ height: 180 }} />
+  const { ref, ready } = useChartReady()
   return (
     <Card>
       <CardHeader>
         <CardTitle>Cash Flow</CardTitle>
         <StatCard label="Net Cash Flow" value={-46} prefix="$" color="var(--accent-danger)" animate />
       </CardHeader>
-      <div style={{ height: 180 }}>
+      <div ref={ref} style={{ height: 180 }}>
+        {ready && (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
             <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
@@ -60,6 +58,7 @@ export function CashFlowCard() {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </Card>
   )

@@ -43,12 +43,12 @@ export function AreaChartWrapper({
   className,
   mini = false,
 }: AreaChartWrapperProps) {
-  const { ref, ready } = useChartReady()
+  const { ref, ready, size } = useChartReady()
 
   return (
     <div ref={ref} className={cn('w-full', className)} style={{ height }}>
       {ready && (
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={size}>
         <AreaChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id={`grad-${dataKey}`} x1="0" y1="0" x2="0" y2="1">

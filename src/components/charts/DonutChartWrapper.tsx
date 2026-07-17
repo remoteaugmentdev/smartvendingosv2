@@ -43,12 +43,12 @@ export function DonutChartWrapper({
   height = 180,
   className,
 }: DonutChartWrapperProps) {
-  const { ref, ready } = useChartReady()
+  const { ref, ready, size } = useChartReady()
 
   return (
     <div ref={ref} className={cn('w-full', className)} style={{ height }}>
       {ready && (
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={size}>
         <PieChart>
           <Pie
             data={data}

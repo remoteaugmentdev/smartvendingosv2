@@ -64,12 +64,12 @@ export function BarChartWrapper({
   showLegend = false,
   className,
 }: BarChartWrapperProps) {
-  const { ref, ready } = useChartReady()
+  const { ref, ready, size } = useChartReady()
 
   return (
     <div ref={ref} className={cn('w-full', className)} style={{ height }}>
       {ready && (
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={size}>
         <BarChart
           data={data}
           layout={layout}

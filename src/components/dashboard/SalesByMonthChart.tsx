@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 import {
   BarChart,
   Bar,
@@ -14,6 +12,7 @@ import {
 } from 'recharts'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { sales } from '@/data/sales'
+import { useChartReady } from '@/components/charts/useChartReady'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -38,15 +37,14 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function SalesByMonthChart() {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div style={{ height: 240 }} />
+  const { ref, ready } = useChartReady()
   return (
     <Card>
       <CardHeader>
         <CardTitle>Sales by Month</CardTitle>
       </CardHeader>
-      <div style={{ height: 240 }}>
+      <div ref={ref} style={{ height: 240 }}>
+        {ready && (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sales} margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -60,6 +58,7 @@ export function SalesByMonthChart() {
             <Bar dataKey="cogs"       name="COGS"         fill="#64748B" radius={[3, 3, 0, 0]} maxBarSize={16} />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </Card>
   )

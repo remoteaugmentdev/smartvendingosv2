@@ -13,27 +13,27 @@ const PINS = [
   { x: 420, y: 84, d: 1.4 },
 ]
 
-const GUIDELINES = [
-  {
-    Icon: Sparkles,
-    text: 'A soft ring points to what matters on each screen.',
-  },
-  {
-    Icon: ChevronRight,
-    text: 'Move with Next and Back. We open each page for you.',
-  },
-  {
-    Icon: Map,
-    text: '40 short stops, from the live map to AI forecasting.',
-  },
-  {
-    Icon: RotateCcw,
-    text: 'Leave anytime with Esc, and restart from the corner button.',
-  },
-]
-
 export function TourWelcome() {
   const { welcomeOpen, stepCount, beginTour, dismissWelcome, companyName } = useTour()
+
+  const GUIDELINES = [
+    {
+      Icon: Sparkles,
+      text: 'A soft ring points to what matters on each screen.',
+    },
+    {
+      Icon: ChevronRight,
+      text: 'Move with Next and Back. We open each page for you.',
+    },
+    {
+      Icon: Map,
+      text: `${stepCount} short stops, from the live map to AI forecasting.`,
+    },
+    {
+      Icon: RotateCcw,
+      text: 'Leave anytime with Esc, and restart from the corner button.',
+    },
+  ]
   const [reducedMotion, setReducedMotion] = useState(false)
   const [ready, setReady] = useState(false)
 
