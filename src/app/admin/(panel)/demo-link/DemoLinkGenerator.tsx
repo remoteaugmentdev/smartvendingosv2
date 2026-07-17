@@ -23,26 +23,46 @@ export function DemoLinkGenerator() {
   const [message, setMessage] = useState('')
   const [origin, setOrigin] = useState('')
   const [copied, setCopied] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [generated, setGenerated] = useState(false)
 
   useEffect(() => setOrigin(window.location.origin), [])
 
   const slug = slugify(name)
   const trimmedMessage = message.trim()
-  const url = slug
-    ? `${origin}/${slug}${trimmedMessage ? `?msg=${encodeURIComponent(trimmedMessage)}` : ''}`
-    : ''
+  const url = slug ? `${origin}/${slug}` : ''
+
+  function onNameChange(v: string) {
+    setName(v)
+    setGenerated(false)
+  }
+
+  function onMessageChange(v: string) {
+    setMessage(v)
+    setGenerated(false)
+  }
+
+  async function generate() {
+    if (!slug || generating) return
+    setGenerating(true)
+    try {
+      await fetch('/api/leads/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company: name.trim(), slug, message: trimmedMessage }),
+      })
+      router.refresh()
+      setGenerated(true)
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   async function copy() {
     if (!url) return
     await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
-
-    fetch('/api/leads/seed', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company: name.trim(), slug }),
-    }).then(() => router.refresh()).catch(() => {})
   }
 
   return (
@@ -52,7 +72,7 @@ export function DemoLinkGenerator() {
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => onNameChange(e.target.value)}
           placeholder="Peak Vending Solutions"
           className={FIELD_CLS}
         />
@@ -64,7 +84,7 @@ export function DemoLinkGenerator() {
         </span>
         <textarea
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => onMessageChange(e.target.value)}
           maxLength={100}
           rows={2}
           placeholder="We built this for your 40-machine fleet in Austin"
@@ -73,7 +93,11 @@ export function DemoLinkGenerator() {
         <span className="block text-right text-xs text-slate-400">{message.length}/100</span>
       </label>
 
-      {slug && (
+      <Button type="button" onClick={generate} disabled={!slug || generating} className="w-full">
+        {generating ? 'Generating…' : 'Generate URL'}
+      </Button>
+
+      {generated && (
         <div
           key={url}
           className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-3"

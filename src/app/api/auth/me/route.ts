@@ -24,13 +24,22 @@ export async function GET() {
     }
   }
 
+  let label: string | null = profile?.label ?? null
+  if (session.slug) {
+    const { rows: leadRows } = await pool.query(
+      `SELECT company FROM public.leads WHERE slug = $1`,
+      [session.slug]
+    )
+    if (leadRows[0]?.company) label = leadRows[0].company
+  }
+
   return NextResponse.json({
     user: {
       id: session.userId,
       email: profile?.email ?? session.email,
       role: profile?.role ?? session.role,
       expires_at: profile?.expires_at ?? null,
-      label: profile?.label ?? null,
+      label,
       slug: session.slug ?? null,
     },
   })

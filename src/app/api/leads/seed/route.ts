@@ -4,7 +4,7 @@ import { ensureLeadsTable } from '@/utils/leadsSchema'
 
 export async function POST(request: NextRequest) {
   try {
-    const { company, slug } = await request.json()
+    const { company, slug, message } = await request.json()
 
     if (!company?.trim() || !slug?.trim()) {
       return NextResponse.json({ error: 'Please fill in every field.' }, { status: 400 })
@@ -13,8 +13,9 @@ export async function POST(request: NextRequest) {
     await ensureLeadsTable()
 
     await pool.query(
-      `INSERT INTO public.leads (company, slug) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`,
-      [company.trim(), slug.trim()]
+      `INSERT INTO public.leads (company, slug, custom_message) VALUES ($1, $2, $3)
+       ON CONFLICT (slug) DO UPDATE SET company = EXCLUDED.company, custom_message = EXCLUDED.custom_message`,
+      [company.trim(), slug.trim(), message?.trim() || null]
     )
 
     return NextResponse.json({ ok: true })

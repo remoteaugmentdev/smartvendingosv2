@@ -23,6 +23,7 @@ export async function ensureLeadsTable() {
     ALTER TABLE public.leads ALTER COLUMN pain_point DROP NOT NULL;
     ALTER TABLE public.leads ALTER COLUMN current_solution DROP NOT NULL;
     ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS slug text;
+    ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS custom_message text;
   `)
 
   // unique index (not a table constraint) so multiple NULL slugs (organic submissions) coexist

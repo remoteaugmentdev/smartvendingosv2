@@ -50,18 +50,20 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ ok: true })
 
     // Drop the prospect straight into the demo dashboard, but never
-    // downgrade a signed-in master testing the form
+    // downgrade a signed-in master testing the form — keep their own
+    // identity/role, just attach the slug so the UI reflects which
+    // company link they're currently testing
     const existing = await getSessionFromRequest(request)
-    if (existing?.role !== 'master') {
-      const token = await signSession({ userId: leadId!, email: email.trim(), role: 'demo', slug: trimmedSlug || undefined })
-      response.cookies.set(COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days, same as login
-      })
-    }
+    const token = existing?.role === 'master'
+      ? await signSession({ userId: existing.userId, email: existing.email, role: existing.role, slug: trimmedSlug || undefined })
+      : await signSession({ userId: leadId!, email: email.trim(), role: 'demo', slug: trimmedSlug || undefined })
+    response.cookies.set(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days, same as login
+    })
     return response
   } catch (err) {
     console.error('[api/leads]', err)
