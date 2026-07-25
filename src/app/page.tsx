@@ -174,7 +174,7 @@ export default async function HomePage({
         <div className="mx-auto flex w-full max-w-[88rem] flex-col gap-1.5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>Trusted by operators managing 500+ machines globally</p>
           <p>
-            Made by{' '}
+            A product of{' '}
             <a
               href="https://remoteaugment.com"
               target="_blank"
