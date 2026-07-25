@@ -80,7 +80,7 @@ export default async function HomePage({
   // different company's link shouldn't trigger it). Falls back to the DB
   // record so a signed-out returning visitor still skips the form.
   const session = slug ? await getSession() : null
-  const filledThisSlug = session?.slug === slug || alreadyFilled
+  const filledThisSlug = Boolean(slug) && (session?.slug === slug || alreadyFilled)
 
   return (
     <div
