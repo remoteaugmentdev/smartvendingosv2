@@ -5,17 +5,10 @@ import { useRouter } from 'next/navigation'
 import { Check, Copy, Link as LinkIcon } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { slugify } from '@/utils/slug'
 
 const FIELD_CLS =
   'h-11 w-full rounded-xl border-0 bg-slate-100 px-4 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all'
-
-function slugify(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
 
 export function DemoLinkGenerator() {
   const router = useRouter()

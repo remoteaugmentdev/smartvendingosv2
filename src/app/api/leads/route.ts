@@ -2,10 +2,22 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { pool } from '@/utils/db'
 import { signSession, getSessionFromRequest, COOKIE_NAME } from '@/utils/session'
 import { ensureLeadsTable } from '@/utils/leadsSchema'
+import { slugify } from '@/utils/slug'
 
 const FLEET_SIZES = ['1-10', '11-50', '51-200', '200+']
 const PAIN_POINTS = ['Inventory Management', 'Route Inefficiency', 'Revenue Tracking', 'Machine Downtime']
 const SOLUTIONS = ['Excel/Pen & Paper', 'Nayax', 'Cantaloupe', 'Parlevel', 'Other']
+
+async function insertLead(fields: string[], slug: string): Promise<string | undefined> {
+  const { rows } = await pool.query(
+    `INSERT INTO public.leads (full_name, email, company, fleet_size, pain_point, current_solution, slug)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (slug) DO NOTHING
+     RETURNING id`,
+    [...fields, slug]
+  )
+  return rows[0]?.id
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,13 +50,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (!leadId) {
-      const { rows } = await pool.query(
-        `INSERT INTO public.leads (full_name, email, company, fleet_size, pain_point, current_solution, slug)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING id`,
-        [fullName.trim(), email.trim(), company.trim(), fleetSize, painPoint, currentSolution, trimmedSlug || null]
-      )
-      leadId = rows[0].id
+      // Submissions from the bare landing page carry no slug, so derive one from the
+      // company: every lead ends up with an openable demo link in the admin table.
+      const fields = [fullName.trim(), email.trim(), company.trim(), fleetSize, painPoint, currentSolution]
+      const base = trimmedSlug || slugify(company) || 'demo'
+      leadId =
+        (await insertLead(fields, base)) ??
+        // Slug is unique: another company already owns this one, so give this lead its own
+        (await insertLead(fields, `${base}-${Math.random().toString(36).slice(2, 6)}`))
+      if (!leadId) throw new Error(`could not allocate a slug for "${company.trim()}"`)
     }
 
     const response = NextResponse.json({ ok: true })
