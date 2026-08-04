@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export function LoginForm() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -31,8 +29,9 @@ export function LoginForm() {
       return
     }
 
-    router.push(data.role === 'master' ? '/admin/leads' : '/dashboard')
-    router.refresh()
+    // Full load for the same reason as the demo form: AuthProvider only reads
+    // the session cookie on mount, and it was just issued
+    window.location.href = data.role === 'master' ? '/admin/leads' : '/dashboard'
   }
 
   return (

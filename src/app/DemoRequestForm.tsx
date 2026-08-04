@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { ChevronDown, Loader2 } from 'lucide-react'
 
 const FIELD_CLS =
@@ -31,7 +30,6 @@ function Select({ label, name, options }: { label: string; name: string; options
 }
 
 export function DemoRequestForm({ companyName, slug }: { companyName?: string; slug?: string } = {}) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -54,8 +52,13 @@ export function DemoRequestForm({ companyName, slug }: { companyName?: string; s
     }
 
     if (companyName) sessionStorage.setItem('demoCompanyName', companyName)
-    router.push(slug ? `/${slug}/dashboard` : '/dashboard')
-    router.refresh()
+    // Submitting from the bare landing page has no slug in hand: the API derives
+    // one from the company and returns it, so the demo still opens on their link
+    const { slug: leadSlug } = await res.json().catch(() => ({ slug: undefined }))
+    const destination = slug ?? leadSlug
+    // Full load, not router.push: AuthProvider reads the session once on mount, and
+    // the cookie was only just issued. Exiting the demo needs the slug from it.
+    window.location.href = destination ? `/${destination}/dashboard` : '/dashboard'
   }
 
   return (
